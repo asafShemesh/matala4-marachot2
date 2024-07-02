@@ -11,7 +11,7 @@ public:
 
     Node(const T& key);
     void addChild(Node<T>* child);
-    T get_value() { return key; }  // function to access key
+    T get_value() const { return key; }
 };
 
 template <typename T>

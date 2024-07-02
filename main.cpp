@@ -25,7 +25,7 @@ int main()
     tree.add_sub_node(n1, n3);
     tree.add_sub_node(n1, n4);
     tree.add_sub_node(n2, n5);
-   
+
     // The tree should look like:
     /**
      *       root = 1.1
@@ -62,7 +62,7 @@ int main()
 
     cout << tree; // Should print the graph using GUI.
 
-    Tree<double,3> three_ary_tree; // 3-ary tree.
+    Tree<double, 3> three_ary_tree; // 3-ary tree.
     three_ary_tree.add_root(root_node);
     three_ary_tree.add_sub_node(root_node, n1);
     three_ary_tree.add_sub_node(root_node, n2);
@@ -70,7 +70,7 @@ int main()
     three_ary_tree.add_sub_node(n1, n4);
     three_ary_tree.add_sub_node(n2, n5);
 
-     // The tree should look like:
+    // The tree should look like:
     /**
      *       root = 1.1
      *     /      |     \
@@ -78,5 +78,4 @@ int main()
      *   /        |
      *  1.5      1.6
      */
-    
 }

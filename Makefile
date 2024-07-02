@@ -2,52 +2,35 @@
 CXX = g++
 
 # Compiler flags
-CXXFLAGS = -std=c++11 -Wall -Wextra -fPIC -g
+CXXFLAGS = -std=c++11 -Wall -Wextra
 
-# Qt includes and libraries
-QT_INCLUDES = $(shell pkg-config --cflags Qt5Widgets)
-QT_LIBS = $(shell pkg-config --libs Qt5Widgets)
-
-# Target executables
+# Targets
 TARGET = tree
-COMPLEX_TARGET = complex
-TEST_TARGET = test
 
 # Source files
 SRCS = main.cpp
 
-
-
 # Object files
 OBJS = $(SRCS:.cpp=.o)
 
+# Dependencies
+DEPS = node.hpp tree.hpp
 
+# Default rule
+all: $(TARGET)
 
-# Header files
-HDRS = Node.hpp Tree.hpp
-
-# Default target
-all: $(TARGET) 
-
-# Link the target executable
+# Link
 $(TARGET): $(OBJS)
-	$(CXX) $(CXXFLAGS) -o $@ $^ $(QT_LIBS)
+	$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJS)
+	./$(TARGET)
 
-# Link the complex executable
-$(COMPLEX_TARGET): $(COMPLEX_OBJS)
-	$(CXX) $(CXXFLAGS) -o $@ $^ $(QT_LIBS)
+# Compile source files
+%.o: %.cpp $(DEPS)
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-# Link the test executable
-$(TEST_TARGET): $(TEST_OBJS)
-	$(CXX) $(CXXFLAGS) -o $@ $^ $(QT_LIBS)
-
-# Compile source files to object files
-%.o: %.cpp $(HDRS)
-	$(CXX) $(CXXFLAGS) $(QT_INCLUDES) -c $< -o $@
-
-# Clean up build files
+# Clean up
 clean:
-	rm -f $(OBJS) $(COMPLEX_OBJS) $(TEST_OBJS) $(TARGET) $(COMPLEX_TARGET) $(TEST_TARGET)
+	rm -f $(TARGET) $(OBJS)
 
 # Phony targets
-.PHONY: all clean
+.PHONY: all clean tree

@@ -56,11 +56,11 @@ public:
 private:
     Node<T>* root;
 
-    void preOrder(Node<T>* node, std::vector<Node<T>*>& nodes);
-    void postOrder(Node<T>* node, std::vector<Node<T>*>& nodes);
-    void inOrder(Node<T>* node, std::vector<Node<T>*>& nodes);
-    void bfsOrder(Node<T>* node, std::vector<Node<T>*>& nodes);
-    void dfsOrder(Node<T>* node, std::vector<Node<T>*>& nodes);
+    void preOrder(Node<T>* node, std::vector<Node<T>*>& nodes) const;
+    void postOrder(Node<T>* node, std::vector<Node<T>*>& nodes) const;
+    void inOrder(Node<T>* node, std::vector<Node<T>*>& nodes) const;
+    void bfsOrder(Node<T>* node, std::vector<Node<T>*>& nodes) const;
+    void dfsOrder(Node<T>* node, std::vector<Node<T>*>& nodes) const;
 
     template <typename U, int V>
     friend std::ostream& operator<<(std::ostream& os, const Tree<U, V>& tree);
@@ -71,20 +71,7 @@ Tree<T, K>::Tree() : root(nullptr) {}
 
 template <typename T, int K>
 Tree<T, K>::~Tree() {
-    if (root) {
-        std::queue<Node<T>*> nodes;
-        nodes.push(root);
-        while (!nodes.empty()) {
-            Node<T>* node = nodes.front();
-            nodes.pop();
-            for (Node<T>* child : node->children) {
-                if (child) {
-                    nodes.push(child);
-                }
-            }
-            delete node;
-        }
-    }
+    // Destructor doesn't delete nodes since they are created on the stack
 }
 
 template <typename T, int K>
@@ -108,9 +95,7 @@ void Tree<T, K>::traverseBFS(const std::function<void(const T&)>& visit) const {
         visit(node->key);
 
         for (Node<T>* child : node->children) {
-            if (child) {
-                nodes.push(child);
-            }
+            nodes.push(child);
         }
     }
 }
@@ -128,15 +113,13 @@ void Tree<T, K>::traverseDFS(const std::function<void(const T&)>& visit) {
         visit(node->key);
 
         for (auto it = node->children.rbegin(); it != node->children.rend(); ++it) {
-            if (*it) {
-                nodes.push(*it);
-            }
+            nodes.push(*it);
         }
     }
 }
 
 template <typename T, int K>
-void Tree<T, K>::preOrder(Node<T>* node, std::vector<Node<T>*>& nodes) {
+void Tree<T, K>::preOrder(Node<T>* node, std::vector<Node<T>*>& nodes) const {
     if (!node) return;
     nodes.push_back(node);
     for (Node<T>* child : node->children) {
@@ -145,7 +128,7 @@ void Tree<T, K>::preOrder(Node<T>* node, std::vector<Node<T>*>& nodes) {
 }
 
 template <typename T, int K>
-void Tree<T, K>::postOrder(Node<T>* node, std::vector<Node<T>*>& nodes) {
+void Tree<T, K>::postOrder(Node<T>* node, std::vector<Node<T>*>& nodes) const {
     if (!node) return;
     for (Node<T>* child : node->children) {
         postOrder(child, nodes);
@@ -154,7 +137,7 @@ void Tree<T, K>::postOrder(Node<T>* node, std::vector<Node<T>*>& nodes) {
 }
 
 template <typename T, int K>
-void Tree<T, K>::inOrder(Node<T>* node, std::vector<Node<T>*>& nodes) {
+void Tree<T, K>::inOrder(Node<T>* node, std::vector<Node<T>*>& nodes) const {
     if (!node) return;
     if (node->children.size() > 0) {
         inOrder(node->children[0], nodes);
@@ -166,7 +149,7 @@ void Tree<T, K>::inOrder(Node<T>* node, std::vector<Node<T>*>& nodes) {
 }
 
 template <typename T, int K>
-void Tree<T, K>::bfsOrder(Node<T>* node, std::vector<Node<T>*>& nodes) {
+void Tree<T, K>::bfsOrder(Node<T>* node, std::vector<Node<T>*>& nodes) const {
     if (!node) return;
     std::queue<Node<T>*> q;
     q.push(node);
@@ -175,15 +158,13 @@ void Tree<T, K>::bfsOrder(Node<T>* node, std::vector<Node<T>*>& nodes) {
         q.pop();
         nodes.push_back(n);
         for (Node<T>* child : n->children) {
-            if (child) {
-                q.push(child);
-            }
+            q.push(child);
         }
     }
 }
 
 template <typename T, int K>
-void Tree<T, K>::dfsOrder(Node<T>* node, std::vector<Node<T>*>& nodes) {
+void Tree<T, K>::dfsOrder(Node<T>* node, std::vector<Node<T>*>& nodes) const {
     if (!node) return;
     std::stack<Node<T>*> s;
     s.push(node);
@@ -192,9 +173,7 @@ void Tree<T, K>::dfsOrder(Node<T>* node, std::vector<Node<T>*>& nodes) {
         s.pop();
         nodes.push_back(n);
         for (auto it = n->children.rbegin(); it != n->children.rend(); ++it) {
-            if (*it) {
-                s.push(*it);
-            }
+            s.push(*it);
         }
     }
 }
