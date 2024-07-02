@@ -2,7 +2,6 @@
 #define NODE_HPP
 
 #include <vector>
-#include <cstddef> // להוספת size_t
 
 template <typename T>
 class Node {
@@ -10,22 +9,17 @@ public:
     T key;
     std::vector<Node<T>*> children;
 
-    Node(const T& key, std::size_t maxChildren = 2);
+    Node(const T& key);
     void addChild(Node<T>* child);
+    T get_value() { return key; }  // function to access key
 };
 
 template <typename T>
-Node<T>::Node(const T& key, std::size_t maxChildren) : key(key), children(maxChildren, nullptr) {}
+Node<T>::Node(const T& key) : key(key) {}
 
 template <typename T>
 void Node<T>::addChild(Node<T>* child) {
-    for (std::size_t i = 0; i < children.size(); ++i) {
-        if (!children[i]) {
-            children[i] = child;
-            return;
-        }
-    }
-    children.push_back(child);  // אם אין מקום בילדים, מוסיפים דינמית.
+    children.push_back(child);
 }
 
 #endif // NODE_HPP
