@@ -8,10 +8,10 @@
 #include <stdexcept>
 #include <iterator>
 
-template <typename T>
+template <typename T, std::size_t N = 2>
 class Tree {
 public:
-    Tree(std::size_t maxChildren = 2);
+    Tree();
 
     void add_root(Node<T>& root_node);
     void add_sub_node(Node<T>& parent_node, Node<T>& child_node);
@@ -19,6 +19,7 @@ public:
     void traverseBFS(const std::function<void(const T&)>& visit);
     void traverseDFS(const std::function<void(const T&)>& visit);
 
+    // Pre-order Iterator
     class PreOrderIterator {
     public:
         using iterator_category = std::forward_iterator_tag;
@@ -66,6 +67,7 @@ public:
         std::stack<pointer> stack;
     };
 
+    // Post-order Iterator
     class PostOrderIterator {
     public:
         using iterator_category = std::forward_iterator_tag;
@@ -126,6 +128,7 @@ public:
         }
     };
 
+    // In-order Iterator (only for binary trees)
     class InOrderIterator {
     public:
         using iterator_category = std::forward_iterator_tag;
@@ -191,6 +194,7 @@ public:
         }
     };
 
+    // BFS Iterator
     class BFSIterator {
     public:
         using iterator_category = std::forward_iterator_tag;
@@ -280,27 +284,26 @@ public:
 
 private:
     Node<T>* root;
-    std::size_t maxChildren;
 };
 
-template <typename T>
-Tree<T>::Tree(std::size_t maxChildren) : root(nullptr), maxChildren(maxChildren) {}
+template <typename T, std::size_t N>
+Tree<T, N>::Tree() : root(nullptr) {}
 
-template <typename T>
-void Tree<T>::add_root(Node<T>& root_node) {
+template <typename T, std::size_t N>
+void Tree<T, N>::add_root(Node<T>& root_node) {
     root = &root_node;
 }
 
-template <typename T>
-void Tree<T>::add_sub_node(Node<T>& parent_node, Node<T>& child_node) {
+template <typename T, std::size_t N>
+void Tree<T, N>::add_sub_node(Node<T>& parent_node, Node<T>& child_node) {
     if (!root) {
         throw std::runtime_error("Tree is empty. Add root first.");
     }
     parent_node.addChild(&child_node);
 }
 
-template <typename T>
-void Tree<T>::traverseBFS(const std::function<void(const T&)>& visit) {
+template <typename T, std::size_t N>
+void Tree<T, N>::traverseBFS(const std::function<void(const T&)>& visit) {
     if (!root) return;
 
     std::queue<Node<T>*> nodes;
@@ -319,8 +322,8 @@ void Tree<T>::traverseBFS(const std::function<void(const T&)>& visit) {
     }
 }
 
-template <typename T>
-void Tree<T>::traverseDFS(const std::function<void(const T&)>& visit) {
+template <typename T, std::size_t N>
+void Tree<T, N>::traverseDFS(const std::function<void(const T&)>& visit) {
     if (!root) return;
 
     std::stack<Node<T>*> nodes;
@@ -339,4 +342,4 @@ void Tree<T>::traverseDFS(const std::function<void(const T&)>& visit) {
     }
 }
 
-#endif 
+#endif
