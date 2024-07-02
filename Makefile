@@ -8,7 +8,7 @@ CXXFLAGS = -std=c++11 -Wall -Wextra
 TARGET = tree
 
 # Source files
-SRCS = main.cpp
+SRCS = main.cpp 
 
 # Object files
 OBJS = $(SRCS:.cpp=.o)
