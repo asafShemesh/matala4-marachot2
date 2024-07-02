@@ -1,36 +1,33 @@
-# Compiler
+# Compiler and flags
 CXX = g++
-
-# Compiler flags
 CXXFLAGS = -std=c++11 -Wall -Wextra
 
 # Targets
 TARGET = tree
+TEST_TARGET = test
 
 # Source files
-SRCS = main.cpp 
-
-# Object files
+SRCS = main.cpp
+TEST_SRCS = test.cpp
 OBJS = $(SRCS:.cpp=.o)
+TEST_OBJS = $(TEST_SRCS:.cpp=.o)
 
-# Dependencies
-DEPS = node.hpp tree.hpp
+# Rules
+all: $(TARGET) $(TEST_TARGET)
 
-# Default rule
-all: $(TARGET)
-
-# Link
 $(TARGET): $(OBJS)
-	$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJS)
-	./$(TARGET)
+	$(CXX) $(CXXFLAGS) -o $@ $^
 
-# Compile source files
-%.o: %.cpp $(DEPS)
+$(TEST_TARGET): $(TEST_OBJS)
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
+%.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-# Clean up
-clean:
-	rm -f $(TARGET) $(OBJS)
+run_test: $(TEST_TARGET)
+	./$(TEST_TARGET)
 
-# Phony targets
-.PHONY: all clean tree
+clean:
+	rm -f $(OBJS) $(TEST_OBJS) $(TARGET) $(TEST_TARGET)
+
+.PHONY: all clean run_test
