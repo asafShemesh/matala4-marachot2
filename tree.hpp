@@ -127,72 +127,81 @@ public:
             }
         }
     };
+// In-order Iterator (generalized as DFS for n-ary trees)
+class InOrderIterator {
+public:
+    using iterator_category = std::forward_iterator_tag;
+    using value_type = Node<T>;
+    using difference_type = std::ptrdiff_t;
+    using pointer = Node<T>*;
+    using reference = Node<T>&;
 
-    // In-order Iterator (only for binary trees)
-    class InOrderIterator {
-    public:
-        using iterator_category = std::forward_iterator_tag;
-        using value_type = Node<T>;
-        using difference_type = std::ptrdiff_t;
-        using pointer = Node<T>*;
-        using reference = Node<T>&;
-
-        InOrderIterator(pointer root) {
+    InOrderIterator(pointer root) {
+        if (root) {
             fillStack(root);
             advance();
         }
+    }
 
-        reference operator*() const {
-            return *current;
-        }
+    reference operator*() const {
+        return *current;
+    }
 
-        pointer operator->() {
-            return current;
-        }
+    pointer operator->() {
+        return current;
+    }
 
-        InOrderIterator& operator++() {
-            advance();
-            return *this;
-        }
+    InOrderIterator& operator++() {
+        advance();
+        return *this;
+    }
 
-        InOrderIterator operator++(int) {
-            InOrderIterator tmp = *this;
-            ++(*this);
-            return tmp;
-        }
+    InOrderIterator operator++(int) {
+        InOrderIterator tmp = *this;
+        ++(*this);
+        return tmp;
+    }
 
-        friend bool operator==(const InOrderIterator& a, const InOrderIterator& b) {
-            return a.current == b.current;
-        }
+    friend bool operator==(const InOrderIterator& a, const InOrderIterator& b) {
+        return a.current == b.current;
+    }
 
-        friend bool operator!=(const InOrderIterator& a, const InOrderIterator& b) {
-            return !(a == b);
-        }
+    friend bool operator!=(const InOrderIterator& a, const InOrderIterator& b) {
+        return !(a == b);
+    }
 
-    private:
-        std::stack<pointer> stack;
-        pointer current = nullptr;
+private:
+    std::stack<pointer> stack;
+    pointer current = nullptr;
 
-        void fillStack(pointer node) {
-            while (node) {
-                stack.push(node);
-                node = node->children.empty() ? nullptr : node->children[0];
+    void fillStack(pointer node) {
+        while (node) {
+            stack.push(node);
+            if (!node->children.empty()) {
+                node = node->children[0];
+            } else {
+                break;
             }
         }
+    }
 
-        void advance() {
-            if (stack.empty()) {
-                current = nullptr;
-                return;
-            }
-
-            current = stack.top();
-            stack.pop();
-
-            pointer node = current->children.size() > 1 ? current->children[1] : nullptr;
-            fillStack(node);
+    void advance() {
+        if (stack.empty()) {
+            current = nullptr;
+            return;
         }
-    };
+
+        current = stack.top();
+        stack.pop();
+
+        if (current && current->children.size() > 1) {
+            for (size_t i = 1; i < current->children.size(); ++i) {
+                fillStack(current->children[i]);
+            }
+        }
+    }
+};
+
 
     // BFS Iterator
     class BFSIterator {

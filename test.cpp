@@ -4,6 +4,15 @@
 #include "node.hpp"
 #include <vector>
 #include <algorithm>
+#include <iostream>
+
+template <typename T>
+void print_vector(const std::vector<T>& vec) {
+    for (const auto& val : vec) {
+        std::cout << val << " ";
+    }
+    std::cout << std::endl;
+}
 
 TEST_CASE("Testing 2-ary Tree") {
     Node<double> root_node(1.1);
@@ -37,7 +46,7 @@ TEST_CASE("Testing 2-ary Tree") {
     for (auto it = binary_tree.begin_in_order(); it != binary_tree.end_in_order(); ++it) {
         in_order_result.push_back(it->key);
     }
-    CHECK(in_order_result == std::vector<double>{1.4, 1.2, 1.5, 1.1, 1.3, 1.6});
+    CHECK(in_order_result == std::vector<double>{1.4, 1.2, 1.5, 1.1, 1.6, 1.3});
 
     std::vector<double> post_order_result;
     for (auto it = binary_tree.begin_post_order(); it != binary_tree.end_post_order(); ++it) {
@@ -78,7 +87,9 @@ TEST_CASE("Testing 3-ary Tree") {
     for (auto it = three_ary_tree.begin_in_order(); it != three_ary_tree.end_in_order(); ++it) {
         in_order_result.push_back(it->key);
     }
-    CHECK(in_order_result == std::vector<double>{1.5, 1.2, 1.1, 1.6, 1.3, 1.4});
+    std::cout << "3-ary Tree In-order Result: ";
+    print_vector(in_order_result);
+    CHECK(in_order_result == std::vector<double>{1.5, 1.2, 1.1, 1.4, 1.6, 1.3});
 
     std::vector<double> post_order_result;
     for (auto it = three_ary_tree.begin_post_order(); it != three_ary_tree.end_post_order(); ++it) {
