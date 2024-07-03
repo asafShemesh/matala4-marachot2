@@ -12,6 +12,9 @@ TEST_SRCS = test.cpp
 OBJS = $(SRCS:.cpp=.o)
 TEST_OBJS = $(TEST_SRCS:.cpp=.o)
 
+# Header files (for dependency tracking)
+HEADERS = complex.hpp tree.hpp node.hpp
+
 # Rules
 all: $(TARGET) $(TEST_TARGET)
 
@@ -21,7 +24,7 @@ $(TARGET): $(OBJS)
 $(TEST_TARGET): $(TEST_OBJS)
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
-%.o: %.cpp
+%.o: %.cpp $(HEADERS)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 run_test: $(TEST_TARGET)
