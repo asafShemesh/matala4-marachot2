@@ -7,6 +7,14 @@
 #include <stack>
 #include <stdexcept>
 #include <iterator>
+#include <sstream>
+#include <QApplication>
+#include <QGraphicsScene>
+#include <QGraphicsEllipseItem>
+#include <QGraphicsTextItem>
+#include <QGraphicsView>
+#include <QPainter>
+#include <QLinearGradient>
 
 template <typename T, std::size_t N = 2>
 class Tree {
@@ -18,6 +26,9 @@ public:
 
     void traverseBFS(const std::function<void(const T&)>& visit);
     void traverseDFS(const std::function<void(const T&)>& visit);
+    void printTreeGUI() const;
+    void drawNode(QGraphicsScene& scene, Node<T>* node, int x, int y, int hGap, int vGap, int depth = 0) const;
+
 
     // Pre-order Iterator
     class PreOrderIterator {
@@ -350,5 +361,99 @@ void Tree<T, N>::traverseDFS(const std::function<void(const T&)>& visit) {
         }
     }
 }
+template <typename T, std::size_t N>
+void Tree<T, N>::printTreeGUI() const {
+    int argc = 0;
+    char *argv[] = { (char*)"" };
+    QApplication app(argc, argv);
 
+    QGraphicsScene scene;
+
+    int startX = 750;
+    int startY = 50;
+    int hGap = 200 * (N - 1);
+    int vGap = 100;
+
+    drawNode(scene, root, startX, startY, hGap, vGap);
+
+    QGraphicsView view(&scene);
+    view.setRenderHint(QPainter::Antialiasing);
+    view.setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
+
+    QLinearGradient gradient(0, 0, 0, 800);
+    gradient.setColorAt(0, QColor(60, 60, 60));
+    gradient.setColorAt(1, QColor(30, 30, 30));
+    view.setBackgroundBrush(gradient);
+
+    view.setWindowTitle("Tree Visualization");
+    view.setFixedSize(1600, 900);
+    scene.setSceneRect(0, 0, 1500, 800);
+
+    view.show();
+
+    app.exec();
+}
+
+template <typename T, std::size_t N>
+void Tree<T, N>::drawNode(QGraphicsScene& scene, Node<T>* node, int x, int y, int hGap, int vGap, int depth) const {
+    if (!node) return;
+
+    std::ostringstream oss;
+    oss << node->key;
+    QGraphicsTextItem* textItem = scene.addText(QString::fromStdString(oss.str()));
+    textItem->setDefaultTextColor(Qt::white);
+    textItem->setZValue(1);
+
+    QColor borderColor, edgeColor;
+    edgeColor = borderColor = QColor(29, 35, 189);
+
+    QRectF rect = textItem->boundingRect();
+    QColor backgroundColor(85, 85, 90);
+    QGraphicsRectItem* rectItem = scene.addRect(rect.adjusted(-25, -10, 25, 10), QPen(borderColor, 2), QBrush(backgroundColor));
+    rectItem->setPos(x - rect.width() / 2 - 25, y - rect.height() / 2 - 10);
+
+    int rectCenterX = x - rect.width() / 2 - 25;
+    int rectCenterY = y - rect.height() / 2 - 10;
+    textItem->setPos(rectCenterX + rect.width() / 2 - textItem->boundingRect().width() / 2,
+                     rectCenterY + rect.height() / 2 - textItem->boundingRect().height() / 2);
+
+    int screen_padding = 10;
+    int childY = y + vGap;
+    int numChildren = node->children.size();
+    int childXLow = 0;
+    int childXHigh = x - screen_padding + hGap;
+    if (numChildren > 0) {
+        int totalWidth;
+        if (numChildren % 2 != 0) {
+            totalWidth = ((numChildren - 1) * hGap) / 2;
+        } else {
+            totalWidth = (numChildren * hGap) / 2;
+        }
+        childXLow = x - totalWidth - screen_padding;
+    }
+
+    int numOfChild = 0;
+    for (Node<T>* child : node->children) {
+        if (child) {
+            if (numOfChild < numChildren / 2 || N == 1) {
+                scene.addLine(x - screen_padding - rect.width() / 2, y + rect.height() / 2,
+                              childXLow - rect.width(), childY - rect.height() / 2 - screen_padding, QPen(edgeColor, 2));
+                drawNode(scene, child, childXLow, childY, hGap - hGap / 3, vGap, depth + 1);
+                childXLow += hGap;
+            } else if (numOfChild >= numChildren / 2) {
+                if (!(numChildren % 2 != 0 && numOfChild == numChildren / 2) || numChildren == 1) {
+                    scene.addLine(x - screen_padding - rect.width() / 2, y + rect.height() / 2,
+                                  childXHigh + rect.width() / 2, childY - rect.height() / 2 - screen_padding, QPen(edgeColor, 2));
+                    drawNode(scene, child, childXHigh, childY, hGap - hGap / 3, vGap, depth + 1);
+                    childXHigh += hGap;
+                } else {
+                    scene.addLine(x - screen_padding - rect.width() / 2, y + rect.height() / 2,
+                                  x - screen_padding - rect.width() / 2, childY - rect.height() / 2 - screen_padding, QPen(edgeColor, 2));
+                    drawNode(scene, child, x, childY, hGap - hGap / 3, vGap, depth + 1);
+                }
+            }
+        }
+        numOfChild++;
+    }
+}
 #endif

@@ -52,6 +52,7 @@ int main() {
     three_ary_tree.add_sub_node(root_node, n3);
     three_ary_tree.add_sub_node(n1, n4);
     three_ary_tree.add_sub_node(n2, n5);
+    tree.printTreeGUI();
 
     // Complex number tree
     Node<Complex> complex_root = Node<Complex>(Complex(1.1, 2.2));
@@ -68,6 +69,7 @@ int main() {
     complex_tree.add_sub_node(c1, c3);
     complex_tree.add_sub_node(c1, c4);
     complex_tree.add_sub_node(c2, c5);
+    tree.printTreeGUI();
 
     for (auto node = complex_tree.begin_pre_order(); node != complex_tree.end_pre_order(); ++node) {
         cout << node->get_value() << ",";

@@ -1,6 +1,7 @@
 # Compiler and flags
 CXX = g++
-CXXFLAGS = -std=c++11 -Wall -Wextra
+CXXFLAGS = -std=c++11 -Wall -Wextra `pkg-config --cflags Qt5Widgets` -fPIC
+LDFLAGS = `pkg-config --libs Qt5Widgets`
 
 # Targets
 TARGET = tree
@@ -19,10 +20,10 @@ HEADERS = complex.hpp tree.hpp node.hpp
 all: $(TARGET) $(TEST_TARGET)
 
 $(TARGET): $(OBJS)
-	$(CXX) $(CXXFLAGS) -o $@ $^
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
 $(TEST_TARGET): $(TEST_OBJS)
-	$(CXX) $(CXXFLAGS) -o $@ $^
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
 
 %.o: %.cpp $(HEADERS)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
