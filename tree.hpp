@@ -7,14 +7,10 @@
 #include <stack>
 #include <stdexcept>
 #include <iterator>
-#include <sstream>
 #include <QApplication>
-#include <QGraphicsScene>
-#include <QGraphicsEllipseItem>
-#include <QGraphicsTextItem>
-#include <QGraphicsView>
-#include <QPainter>
-#include <QLinearGradient>
+#include <QMainWindow>
+#include <QTreeWidget>
+#include <QVBoxLayout>
 
 template <typename T, std::size_t N = 2>
 class Tree {
@@ -26,11 +22,7 @@ public:
 
     void traverseBFS(const std::function<void(const T&)>& visit);
     void traverseDFS(const std::function<void(const T&)>& visit);
-    void printTreeGUI() const;
-    void drawNode(QGraphicsScene& scene, Node<T>* node, int x, int y, int hGap, int vGap, int depth = 0) const;
 
-
-    // Pre-order Iterator
     class PreOrderIterator {
     public:
         using iterator_category = std::forward_iterator_tag;
@@ -78,7 +70,6 @@ public:
         std::stack<pointer> stack;
     };
 
-    // Post-order Iterator
     class PostOrderIterator {
     public:
         using iterator_category = std::forward_iterator_tag;
@@ -138,83 +129,81 @@ public:
             }
         }
     };
-// In-order Iterator (generalized as DFS for n-ary trees)
-class InOrderIterator {
-public:
-    using iterator_category = std::forward_iterator_tag;
-    using value_type = Node<T>;
-    using difference_type = std::ptrdiff_t;
-    using pointer = Node<T>*;
-    using reference = Node<T>&;
 
-    InOrderIterator(pointer root) {
-        if (root) {
-            fillStack(root);
+    class InOrderIterator {
+    public:
+        using iterator_category = std::forward_iterator_tag;
+        using value_type = Node<T>;
+        using difference_type = std::ptrdiff_t;
+        using pointer = Node<T>*;
+        using reference = Node<T>&;
+
+        InOrderIterator(pointer root) {
+            if (root) {
+                fillStack(root);
+                advance();
+            }
+        }
+
+        reference operator*() const {
+            return *current;
+        }
+
+        pointer operator->() {
+            return current;
+        }
+
+        InOrderIterator& operator++() {
             advance();
+            return *this;
         }
-    }
 
-    reference operator*() const {
-        return *current;
-    }
+        InOrderIterator operator++(int) {
+            InOrderIterator tmp = *this;
+            ++(*this);
+            return tmp;
+        }
 
-    pointer operator->() {
-        return current;
-    }
+        friend bool operator==(const InOrderIterator& a, const InOrderIterator& b) {
+            return a.current == b.current;
+        }
 
-    InOrderIterator& operator++() {
-        advance();
-        return *this;
-    }
+        friend bool operator!=(const InOrderIterator& a, const InOrderIterator& b) {
+            return !(a == b);
+        }
 
-    InOrderIterator operator++(int) {
-        InOrderIterator tmp = *this;
-        ++(*this);
-        return tmp;
-    }
+    private:
+        std::stack<pointer> stack;
+        pointer current = nullptr;
 
-    friend bool operator==(const InOrderIterator& a, const InOrderIterator& b) {
-        return a.current == b.current;
-    }
-
-    friend bool operator!=(const InOrderIterator& a, const InOrderIterator& b) {
-        return !(a == b);
-    }
-
-private:
-    std::stack<pointer> stack;
-    pointer current = nullptr;
-
-    void fillStack(pointer node) {
-        while (node) {
-            stack.push(node);
-            if (!node->children.empty()) {
-                node = node->children[0];
-            } else {
-                break;
+        void fillStack(pointer node) {
+            while (node) {
+                stack.push(node);
+                if (!node->children.empty()) {
+                    node = node->children[0];
+                } else {
+                    break;
+                }
             }
         }
-    }
 
-    void advance() {
-        if (stack.empty()) {
-            current = nullptr;
-            return;
-        }
+        void advance() {
+            if (stack.empty()) {
+                current = nullptr;
+                return;
+            }
 
-        current = stack.top();
-        stack.pop();
+            current = stack.top();
+            stack.pop();
 
-        if (current && current->children.size() > 1) {
-            for (size_t i = 1; i < current->children.size(); ++i) {
-                fillStack(current->children[i]);
+            if (current && current->children.size() > 1) {
+                for (size_t i = 1; i < current->children.size(); ++i) {
+                    fillStack(current->children[i]);
+                }
             }
         }
-    }
-};
+    };
 
-
-    // BFS Iterator
     class BFSIterator {
     public:
         using iterator_category = std::forward_iterator_tag;
@@ -302,8 +291,13 @@ private:
         return end_bfs_scan();
     }
 
+    void display(int argc, char *argv[]);
+
 private:
     Node<T>* root;
+
+    template<typename U>
+    void addChildren(QTreeWidgetItem *parentItem, Node<U> *node);
 };
 
 template <typename T, std::size_t N>
@@ -361,99 +355,39 @@ void Tree<T, N>::traverseDFS(const std::function<void(const T&)>& visit) {
         }
     }
 }
+
 template <typename T, std::size_t N>
-void Tree<T, N>::printTreeGUI() const {
-    int argc = 0;
-    char *argv[] = { (char*)"" };
+void Tree<T, N>::display(int argc, char *argv[]) {
     QApplication app(argc, argv);
+    QMainWindow mainWindow;
+    QTreeWidget *treeWidget = new QTreeWidget(&mainWindow);
+    treeWidget->setColumnCount(1);
+    treeWidget->setHeaderLabel("Tree");
 
-    QGraphicsScene scene;
+    if (root) {
+        QTreeWidgetItem *rootItem = new QTreeWidgetItem(treeWidget);
+        rootItem->setText(0, QString::number(root->key));
+        treeWidget->addTopLevelItem(rootItem);
+        addChildren(rootItem, root);
+    }
 
-    int startX = 750;
-    int startY = 50;
-    int hGap = 200 * (N - 1);
-    int vGap = 100;
-
-    drawNode(scene, root, startX, startY, hGap, vGap);
-
-    QGraphicsView view(&scene);
-    view.setRenderHint(QPainter::Antialiasing);
-    view.setViewportUpdateMode(QGraphicsView::BoundingRectViewportUpdate);
-
-    QLinearGradient gradient(0, 0, 0, 800);
-    gradient.setColorAt(0, QColor(60, 60, 60));
-    gradient.setColorAt(1, QColor(30, 30, 30));
-    view.setBackgroundBrush(gradient);
-
-    view.setWindowTitle("Tree Visualization");
-    view.setFixedSize(1600, 900);
-    scene.setSceneRect(0, 0, 1500, 800);
-
-    view.show();
-
+    mainWindow.setCentralWidget(treeWidget);
+    mainWindow.resize(400, 300);
+    mainWindow.show();
     app.exec();
 }
 
 template <typename T, std::size_t N>
-void Tree<T, N>::drawNode(QGraphicsScene& scene, Node<T>* node, int x, int y, int hGap, int vGap, int depth) const {
-    if (!node) return;
-
-    std::ostringstream oss;
-    oss << node->key;
-    QGraphicsTextItem* textItem = scene.addText(QString::fromStdString(oss.str()));
-    textItem->setDefaultTextColor(Qt::white);
-    textItem->setZValue(1);
-
-    QColor borderColor, edgeColor;
-    edgeColor = borderColor = QColor(29, 35, 189);
-
-    QRectF rect = textItem->boundingRect();
-    QColor backgroundColor(85, 85, 90);
-    QGraphicsRectItem* rectItem = scene.addRect(rect.adjusted(-25, -10, 25, 10), QPen(borderColor, 2), QBrush(backgroundColor));
-    rectItem->setPos(x - rect.width() / 2 - 25, y - rect.height() / 2 - 10);
-
-    int rectCenterX = x - rect.width() / 2 - 25;
-    int rectCenterY = y - rect.height() / 2 - 10;
-    textItem->setPos(rectCenterX + rect.width() / 2 - textItem->boundingRect().width() / 2,
-                     rectCenterY + rect.height() / 2 - textItem->boundingRect().height() / 2);
-
-    int screen_padding = 10;
-    int childY = y + vGap;
-    int numChildren = node->children.size();
-    int childXLow = 0;
-    int childXHigh = x - screen_padding + hGap;
-    if (numChildren > 0) {
-        int totalWidth;
-        if (numChildren % 2 != 0) {
-            totalWidth = ((numChildren - 1) * hGap) / 2;
-        } else {
-            totalWidth = (numChildren * hGap) / 2;
-        }
-        childXLow = x - totalWidth - screen_padding;
-    }
-
-    int numOfChild = 0;
-    for (Node<T>* child : node->children) {
+template <typename U>
+void Tree<T, N>::addChildren(QTreeWidgetItem *parentItem, Node<U> *node) {
+    for (auto child : node->children) {
         if (child) {
-            if (numOfChild < numChildren / 2 || N == 1) {
-                scene.addLine(x - screen_padding - rect.width() / 2, y + rect.height() / 2,
-                              childXLow - rect.width(), childY - rect.height() / 2 - screen_padding, QPen(edgeColor, 2));
-                drawNode(scene, child, childXLow, childY, hGap - hGap / 3, vGap, depth + 1);
-                childXLow += hGap;
-            } else if (numOfChild >= numChildren / 2) {
-                if (!(numChildren % 2 != 0 && numOfChild == numChildren / 2) || numChildren == 1) {
-                    scene.addLine(x - screen_padding - rect.width() / 2, y + rect.height() / 2,
-                                  childXHigh + rect.width() / 2, childY - rect.height() / 2 - screen_padding, QPen(edgeColor, 2));
-                    drawNode(scene, child, childXHigh, childY, hGap - hGap / 3, vGap, depth + 1);
-                    childXHigh += hGap;
-                } else {
-                    scene.addLine(x - screen_padding - rect.width() / 2, y + rect.height() / 2,
-                                  x - screen_padding - rect.width() / 2, childY - rect.height() / 2 - screen_padding, QPen(edgeColor, 2));
-                    drawNode(scene, child, x, childY, hGap - hGap / 3, vGap, depth + 1);
-                }
-            }
+            QTreeWidgetItem *childItem = new QTreeWidgetItem(parentItem);
+            childItem->setText(0, QString::number(child->key));
+            parentItem->addChild(childItem);
+            addChildren(childItem, child);
         }
-        numOfChild++;
     }
 }
+
 #endif

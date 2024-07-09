@@ -6,7 +6,7 @@
 
 using namespace std;
 
-int main() {
+int main(int argc, char *argv[]) {
     Node<double> root_node = Node<double>(1.1);
     Tree<double> tree; // Binary tree that contains doubles.
     tree.add_root(root_node);
@@ -52,7 +52,7 @@ int main() {
     three_ary_tree.add_sub_node(root_node, n3);
     three_ary_tree.add_sub_node(n1, n4);
     three_ary_tree.add_sub_node(n2, n5);
-    tree.printTreeGUI();
+    tree.display(argc, argv);
 
     // Complex number tree
     Node<Complex> complex_root = Node<Complex>(Complex(1.1, 2.2));
@@ -69,7 +69,6 @@ int main() {
     complex_tree.add_sub_node(c1, c3);
     complex_tree.add_sub_node(c1, c4);
     complex_tree.add_sub_node(c2, c5);
-    tree.printTreeGUI();
 
     for (auto node = complex_tree.begin_pre_order(); node != complex_tree.end_pre_order(); ++node) {
         cout << node->get_value() << ",";
@@ -95,4 +94,6 @@ int main() {
         cout << node.get_value() << ",";
     }
     cout << endl;
+    tree.display(argc, argv);
+
 }
