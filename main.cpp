@@ -3,10 +3,20 @@
 #include "node.hpp"
 #include "tree.hpp"
 #include "complex.hpp"
+#include "TreeWidget.hpp"
 
 using namespace std;
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
+    QApplication app(argc, argv);
+    QMainWindow mainWindow;
+    mainWindow.setWindowTitle("Tree Visualization");
+
+    QVBoxLayout *layout = new QVBoxLayout();
+    QWidget *centralWidget = new QWidget(&mainWindow);
+
+    // Double Tree Visualization
     Node<double> root_node = Node<double>(1.1);
     Tree<double> tree; // Binary tree that contains doubles.
     tree.add_root(root_node);
@@ -21,40 +31,34 @@ int main(int argc, char *argv[]) {
     tree.add_sub_node(n1, n3);
     tree.add_sub_node(n1, n4);
     tree.add_sub_node(n2, n5);
-   
-    for (auto node = tree.begin_pre_order(); node != tree.end_pre_order(); ++node) {
-        cout << node->get_value()<<",";
+
+    cout << "Double Tree Traversal:" << endl;
+    for (auto node = tree.begin_pre_order(); node != tree.end_pre_order(); ++node)
+    {
+        cout << node->key << ",";
     }
     cout << endl;
-    for (auto node = tree.begin_post_order(); node != tree.end_post_order(); ++node) {
-        cout << node->get_value() <<",";
+    for (auto node = tree.begin_post_order(); node != tree.end_post_order(); ++node)
+    {
+        cout << node->key << ",";
     }
     cout << endl;
-    for (auto node = tree.begin_in_order(); node != tree.end_in_order(); ++node) {
-        cout << node->get_value() <<",";
+    for (auto node = tree.begin_in_order(); node != tree.end_in_order(); ++node)
+    {
+        cout << node->key << ",";
+    }
+    cout << endl;
+    for (auto node = tree.begin_bfs_scan(); node != tree.end_bfs_scan(); ++node)
+    {
+        cout << node->key << ",";
     }
     cout << endl;
 
-    for (auto node = tree.begin_bfs_scan(); node != tree.end_bfs_scan(); ++node) {
-        cout << node->get_value() <<",";
-    }
-    cout << endl;
+    TreeWidget<double> *doubleTreeWidget = new TreeWidget<double>();
+    doubleTreeWidget->setTree(&tree);
+    layout->addWidget(doubleTreeWidget);
 
-    for (auto node : tree) {
-        cout << node.get_value() <<",";
-    }
-    cout << endl;
-
-    Tree<double, 3> three_ary_tree; // 3-ary tree.
-    three_ary_tree.add_root(root_node);
-    three_ary_tree.add_sub_node(root_node, n1);
-    three_ary_tree.add_sub_node(root_node, n2);
-    three_ary_tree.add_sub_node(root_node, n3);
-    three_ary_tree.add_sub_node(n1, n4);
-    three_ary_tree.add_sub_node(n2, n5);
-    tree.display(argc, argv);
-
-    // Complex number tree
+    // Complex Tree Visualization
     Node<Complex> complex_root = Node<Complex>(Complex(1.1, 2.2));
     Tree<Complex> complex_tree; // Binary tree that contains complex numbers.
     complex_tree.add_root(complex_root);
@@ -70,30 +74,36 @@ int main(int argc, char *argv[]) {
     complex_tree.add_sub_node(c1, c4);
     complex_tree.add_sub_node(c2, c5);
 
-    for (auto node = complex_tree.begin_pre_order(); node != complex_tree.end_pre_order(); ++node) {
-        cout << node->get_value() << ",";
+    cout << "Complex Tree Traversal:" << endl;
+    for (auto node = complex_tree.begin_pre_order(); node != complex_tree.end_pre_order(); ++node)
+    {
+        cout << node->key.toString().toStdString() << ",";
+    }
+    cout << endl;
+    for (auto node = complex_tree.begin_post_order(); node != complex_tree.end_post_order(); ++node)
+    {
+        cout << node->key.toString().toStdString() << ",";
+    }
+    cout << endl;
+    for (auto node = complex_tree.begin_in_order(); node != complex_tree.end_in_order(); ++node)
+    {
+        cout << node->key.toString().toStdString() << ",";
+    }
+    cout << endl;
+    for (auto node = complex_tree.begin_bfs_scan(); node != complex_tree.end_bfs_scan(); ++node)
+    {
+        cout << node->key.toString().toStdString() << ",";
     }
     cout << endl;
 
-    for (auto node = complex_tree.begin_post_order(); node != complex_tree.end_post_order(); ++node) {
-        cout << node->get_value() << ",";
-    }
-    cout << endl;
+    TreeWidget<Complex> *complexTreeWidget = new TreeWidget<Complex>();
+    complexTreeWidget->setTree(&complex_tree);
+    layout->addWidget(complexTreeWidget);
 
-    for (auto node = complex_tree.begin_in_order(); node != complex_tree.end_in_order(); ++node) {
-        cout << node->get_value() << ",";
-    }
-    cout << endl;
+    centralWidget->setLayout(layout);
+    mainWindow.setCentralWidget(centralWidget);
+    mainWindow.resize(800, 600);
+    mainWindow.show();
 
-    for (auto node = complex_tree.begin_bfs_scan(); node != complex_tree.end_bfs_scan(); ++node) {
-        cout << node->get_value() << ",";
-    }
-    cout << endl;
-
-    for (auto node : complex_tree) {
-        cout << node.get_value() << ",";
-    }
-    cout << endl;
-    tree.display(argc, argv);
-
+    return app.exec();
 }

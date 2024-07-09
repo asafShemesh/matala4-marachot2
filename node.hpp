@@ -4,16 +4,19 @@
 #include <vector>
 
 template <typename T>
-class Node {
+class Node
+{
 public:
     T key;
-    std::vector<Node*> children;
+    std::vector<Node *> children;
 
     Node(T val) : key(val) {}
-    void addChild(Node* child) {
+    void addChild(Node *child)
+    {
         children.push_back(child);
     }
-    T get_value() const {
+    T get_value() const
+    {
         return key;
     }
 };

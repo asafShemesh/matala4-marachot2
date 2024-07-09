@@ -1,5 +1,5 @@
 CXX = g++
-CXXFLAGS = -std=c++11 -Wall -Wextra -fPIC `pkg-config --cflags Qt5Widgets`
+CXXFLAGS = -std=c++17 -Wall -Wextra -fPIC `pkg-config --cflags Qt5Widgets`
 LDFLAGS = `pkg-config --libs Qt5Widgets`
 
 MAIN_TARGET = tree
@@ -11,7 +11,7 @@ TEST_SRCS = test.cpp
 MAIN_OBJS = $(MAIN_SRCS:.cpp=.o)
 TEST_OBJS = $(TEST_SRCS:.cpp=.o)
 
-HEADERS = complex.hpp tree.hpp node.hpp
+HEADERS = complex.hpp tree.hpp node.hpp TreeWidget.hpp
 
 all: $(MAIN_TARGET) $(TEST_TARGET)
 
