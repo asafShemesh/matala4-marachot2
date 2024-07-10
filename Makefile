@@ -1,3 +1,4 @@
+#asaf0604@gmail.com  325362457
 CXX = g++
 CXXFLAGS = -std=c++17 -Wall -Wextra -fPIC `pkg-config --cflags Qt5Widgets`
 LDFLAGS = `pkg-config --libs Qt5Widgets`
